@@ -12,14 +12,14 @@ export default function HomePage() {
     <div className="min-h-screen bg-gradient-to-b from-mist-800 to-rose-800">
 
       {/* Hero Section */}
-      <section className="py-16 px-4">
+      <section className="py-16 px-4 light-bg">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
-              <h2 className="font-serif text-4xl md:text-5xl text-mist-100 leading-tight">
+              <h2 className="font-serif text-4xl md:text-5xl text-midnight-800 leading-tight">
                 Sacred Blooms & Ceremonies
               </h2>
-              <p className="text-lg text-mist-200 leading-relaxed">
+              <p className="text-lg text-midnight-700 leading-relaxed">
                 I create enchanting pagan wedding ceremonies and stunning floral arrangements 
                 that honor the ancient traditions while celebrating your unique love story. 
                 Every bloom is chosen with intention, every ritual crafted with reverence.
@@ -28,7 +28,7 @@ export default function HomePage() {
                 <button className="bg-plum-700 hover:bg-plum-800 text-white px-8 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
                   Plan Your Ceremony
                 </button>
-                <button className="border-2 border-forest-600 text-forest-200 hover:bg-forest-600 hover:text-white px-8 py-3 rounded-full font-medium transition-all duration-300">
+                <button className="border-2 border-forest-600 text-forest-600 hover:bg-forest-600 hover:text-white px-8 py-3 rounded-full font-medium transition-all duration-300">
                   View Floral Designs
                 </button>
               </div>

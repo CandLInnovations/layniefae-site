@@ -101,6 +101,52 @@
   }
 }
 
+@keyframes smoke-drift {
+  0% {
+    transform: translateX(0px) translateY(0px) scale(0.6);
+    opacity: 0.2;
+  }
+  25% {
+    transform: translateX(20px) translateY(-25px) scale(1.4);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateX(-15px) translateY(-35px) scale(0.8);
+    opacity: 1.0;
+  }
+  75% {
+    transform: translateX(25px) translateY(-15px) scale(1.6);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(0px) translateY(0px) scale(0.6);
+    opacity: 0.2;
+  }
+}
+
+@keyframes smoke-swirl {
+  0% {
+    transform: rotate(0deg) translateX(0px) translateY(0px) scale(0.7);
+    opacity: 0.3;
+  }
+  25% {
+    transform: rotate(90deg) translateX(20px) translateY(-10px) scale(1.5);
+    opacity: 0.9;
+  }
+  50% {
+    transform: rotate(180deg) translateX(0px) translateY(-20px) scale(1.0);
+    opacity: 1.0;
+  }
+  75% {
+    transform: rotate(270deg) translateX(-18px) translateY(-8px) scale(1.7);
+    opacity: 0.7;
+  }
+  100% {
+    transform: rotate(360deg) translateX(0px) translateY(0px) scale(0.7);
+    opacity: 0.3;
+  }
+}
+
 /* Custom utility classes */
 .animate-fade-in {
   animation: fadeIn 0.5s ease-in-out;
@@ -136,6 +182,21 @@ html {
 *:focus {
   outline: 2px solid #5c4560;
   outline-offset: 2px;
+}
+
+/* Heading styles for light backgrounds */
+.light-bg h1, 
+.light-bg h2, 
+.light-bg h3, 
+.light-bg h4, 
+.light-bg h5, 
+.light-bg h6 {
+  color: #432843; /* plum-800 */
+}
+
+/* Utility class for sections with light backgrounds */
+.light-bg {
+  /* This class can be added to sections with light backgrounds */
 }
 
 /* Screen reader only class */

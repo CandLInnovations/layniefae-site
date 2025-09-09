@@ -74,15 +74,46 @@ const Header = () => {
             aria-label="Toggle menu"
           >
             <svg
-              className={`w-6 h-6 transition-transform duration-300 ${isMenuOpen ? 'rotate-90' : ''}`}
+              className={`w-6 h-6 transition-all duration-500 ${isMenuOpen ? 'rotate-180 scale-110' : ''}`}
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
               {isMenuOpen ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <>
+                  {/* Mystical Moon/Crystal Close Icon */}
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={2} 
+                    d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 0 15c-.132 0-.26 0-.393 0A7.5 7.5 0 1 1 12 3z"
+                    className="animate-pulse"
+                  />
+                  <circle 
+                    cx="12" 
+                    cy="12" 
+                    r="2" 
+                    strokeWidth={1.5} 
+                    className="animate-pulse delay-150"
+                  />
+                  <path 
+                    strokeLinecap="round" 
+                    strokeLinejoin="round" 
+                    strokeWidth={1} 
+                    d="m8 8 8 8 M16 8 l-8 8"
+                    opacity="0.6"
+                  />
+                </>
               ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                <>
+                  {/* Mystical Menu Lines with Dots */}
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 12h16"/>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 18h16"/>
+                  <circle cx="2" cy="6" r="0.5" fill="currentColor" className="animate-pulse"/>
+                  <circle cx="2" cy="12" r="0.5" fill="currentColor" className="animate-pulse delay-100"/>
+                  <circle cx="2" cy="18" r="0.5" fill="currentColor" className="animate-pulse delay-200"/>
+                </>
               )}
             </svg>
           </button>
@@ -90,17 +121,31 @@ const Header = () => {
 
         {/* Mobile Navigation */}
         <div
-          className={`md:hidden transition-all duration-300 ease-in-out ${
+          className={`md:hidden transition-all duration-300 ease-in-out relative ${
             isMenuOpen ? 'max-h-96 opacity-100 pb-6' : 'max-h-0 opacity-0 overflow-hidden'
           }`}
         >
-          <nav className="flex flex-col space-y-4 pt-4 border-t border-plum-800/30">
+          {/* Mobile menu smoky background effect */}
+          {isMenuOpen && (
+            <div className="absolute inset-0 pointer-events-none">
+              <div className="absolute top-2 right-8 w-16 h-16 bg-plum-500/40 rounded-full blur-2xl" style={{animation: 'smoke-drift 4s ease-in-out infinite'}}></div>
+              <div className="absolute top-6 left-4 w-12 h-12 bg-rose-400/30 rounded-full blur-xl" style={{animation: 'smoke-swirl 5s ease-in-out infinite'}}></div>
+              <div className="absolute bottom-4 right-12 w-20 h-20 bg-midnight-600/25 rounded-full blur-3xl" style={{animation: 'smoke-drift 6s ease-in-out infinite 300ms'}}></div>
+              <div className="absolute top-12 right-2 w-8 h-8 bg-plum-600/50 rounded-full blur-lg" style={{animation: 'smoke-swirl 3.5s ease-in-out infinite 500ms'}}></div>
+              <div className="absolute bottom-8 left-6 w-14 h-14 bg-rose-500/35 rounded-full blur-xl" style={{animation: 'smoke-drift 5.5s ease-in-out infinite 700ms'}}></div>
+              <div className="absolute top-20 left-12 w-6 h-6 bg-plum-400/40 rounded-full blur-md" style={{animation: 'smoke-swirl 4.5s ease-in-out infinite 900ms'}}></div>
+              <div className="absolute bottom-12 right-4 w-10 h-10 bg-rose-300/30 rounded-full blur-lg" style={{animation: 'smoke-drift 3.8s ease-in-out infinite 1100ms'}}></div>
+              <div className="absolute top-16 right-20 w-18 h-18 bg-midnight-500/20 rounded-full blur-2xl" style={{animation: 'smoke-swirl 6.5s ease-in-out infinite 200ms'}}></div>
+            </div>
+          )}
+          
+          <nav className="flex flex-col space-y-4 pt-4 border-t border-plum-800/30 relative z-10">
             {navigation.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
                 onClick={() => setIsMenuOpen(false)}
-                className="text-mist-200 hover:text-rose-100 font-serif transition-colors duration-300 py-2 px-4 rounded-lg hover:bg-midnight-800"
+                className="text-mist-200 hover:text-rose-100 font-serif transition-colors duration-300 py-2 px-4 rounded-lg hover:bg-midnight-800 text-right"
               >
                 {item.name}
               </Link>
@@ -108,7 +153,7 @@ const Header = () => {
             <Link
               href="/contact"
               onClick={() => setIsMenuOpen(false)}
-              className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-3 rounded-full font-medium transition-colors duration-300 text-center mt-4"
+              className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-3 rounded-full font-medium transition-colors duration-300 text-center mt-4 ml-auto mr-4 w-fit"
             >
               Book Consultation
             </Link>
