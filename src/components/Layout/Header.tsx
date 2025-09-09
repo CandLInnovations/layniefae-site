@@ -1,0 +1,122 @@
+'use client';
+
+import React, { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+
+const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const navigation = [
+    { name: 'Home', href: '/' },
+    { name: 'Services', href: '/services' },
+    { name: 'Gallery', href: '/gallery' },
+    { name: 'About', href: '/about' },
+    { name: 'Contact', href: '/contact' },
+  ];
+
+  return (
+    <header className="fixed top-0 left-0 right-0 z-50 bg-midnight-900/95 backdrop-blur-sm border-b border-plum-800/30 overflow-visible">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-20">
+          {/* Logo */}
+          <Link href="/" className="flex items-center group relative">
+            <div className="absolute top-0 left-0 w-36 h-36 transition-transform duration-300 group-hover:scale-105 translate-y-2">
+              <Image
+                src="/Laynie_Fae_logo_badge_wfairy2.png"
+                alt="Laynie Fae Logo"
+                width={150}
+                height={153}
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="w-36 h-20"></div> {/* Spacer to prevent navigation overlap */}
+          </Link>
+
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                className="text-mist-200 hover:text-rose-100 font-serif transition-colors duration-300 relative group"
+              >
+                {item.name}
+                {/* Smokey effect */}
+                <>
+                  <div className="absolute -bottom-6 left-1/2 w-20 h-20 bg-plum-500/60 rounded-full blur-2xl transform -translate-x-1/2 opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-700 pointer-events-none"></div>
+                  <div className="absolute -bottom-4 -left-4 w-12 h-12 bg-rose-400/50 rounded-full blur-xl opacity-0 group-hover:opacity-100 animate-float transition-opacity duration-500 delay-200 pointer-events-none"></div>
+                  <div className="absolute -bottom-5 -right-6 w-14 h-14 bg-plum-600/70 rounded-full blur-lg opacity-0 group-hover:opacity-100 animate-bounce transition-opacity duration-600 delay-100 pointer-events-none"></div>
+                  <div className="absolute -bottom-8 left-0 w-16 h-16 bg-midnight-600/40 rounded-full blur-3xl opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-800 delay-400 pointer-events-none"></div>
+                  <div className="absolute -bottom-2 right-2 w-8 h-8 bg-rose-500/55 rounded-full blur-lg opacity-0 group-hover:opacity-100 animate-float transition-opacity duration-600 delay-600 pointer-events-none"></div>
+                  <div className="absolute -top-4 left-1/3 w-10 h-10 bg-plum-400/35 rounded-full blur-xl opacity-0 group-hover:opacity-100 animate-pulse transition-opacity duration-900 delay-800 pointer-events-none"></div>
+                  <div className="absolute -bottom-7 right-1/4 w-6 h-6 bg-rose-300/45 rounded-full blur-md opacity-0 group-hover:opacity-100 animate-bounce transition-opacity duration-500 delay-300 pointer-events-none"></div>
+                </>
+              </Link>
+            ))}
+          </nav>
+
+          {/* CTA Button */}
+          <div className="hidden md:block">
+            <Link
+              href="/contact"
+              className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-plum-700/25"
+            >
+              Book Consultation
+            </Link>
+          </div>
+
+          {/* Mobile menu button */}
+          <button
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            className="md:hidden flex items-center justify-center w-10 h-10 rounded-lg text-mist-200 hover:text-rose-100 hover:bg-midnight-800 transition-colors duration-300"
+            aria-label="Toggle menu"
+          >
+            <svg
+              className={`w-6 h-6 transition-transform duration-300 ${isMenuOpen ? 'rotate-90' : ''}`}
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              {isMenuOpen ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div
+          className={`md:hidden transition-all duration-300 ease-in-out ${
+            isMenuOpen ? 'max-h-96 opacity-100 pb-6' : 'max-h-0 opacity-0 overflow-hidden'
+          }`}
+        >
+          <nav className="flex flex-col space-y-4 pt-4 border-t border-plum-800/30">
+            {navigation.map((item) => (
+              <Link
+                key={item.name}
+                href={item.href}
+                onClick={() => setIsMenuOpen(false)}
+                className="text-mist-200 hover:text-rose-100 font-serif transition-colors duration-300 py-2 px-4 rounded-lg hover:bg-midnight-800"
+              >
+                {item.name}
+              </Link>
+            ))}
+            <Link
+              href="/contact"
+              onClick={() => setIsMenuOpen(false)}
+              className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-3 rounded-full font-medium transition-colors duration-300 text-center mt-4"
+            >
+              Book Consultation
+            </Link>
+          </nav>
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default Header;

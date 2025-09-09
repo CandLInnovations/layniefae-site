@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Crimson_Text, Dancing_Script } from 'next/font/google'
 import './globals.css'
+import Header from '@/components/Layout/Header'
 
 // Font configurations
 const inter = Inter({ 
@@ -90,23 +91,26 @@ export default function RootLayout({
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
         
         {/* Theme color for mobile browsers */}
-        <meta name="theme-color" content="#6b8a4f" />
-        <meta name="msapplication-TileColor" content="#6b8a4f" />
+        <meta name="theme-color" content="#0d192a" />
+        <meta name="msapplication-TileColor" content="#0d192a" />
         
         {/* Viewport for responsive design */}
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
-      <body className={`antialiased bg-sage-50 text-earth-700 font-sans`}>
+      <body className={`antialiased bg-midnight-900 text-mist-100 font-sans`}>
         {/* Skip to main content for accessibility */}
         <a
           href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-ritual-600 text-white px-4 py-2 rounded-md z-50"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-plum-600 text-white px-4 py-2 rounded-md z-50"
         >
           Skip to main content
         </a>
 
+        {/* Header */}
+        <Header />
+
         {/* Main content wrapper */}
-        <div className="flex flex-col min-h-screen">
+        <div className="flex flex-col min-h-screen pt-20">
           <main id="main" className="flex-grow">
             {children}
           </main>
