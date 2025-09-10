@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Crimson_Text, Dancing_Script } from 'next/font/google'
 import './globals.css'
-import Header from '@/components/Layout/Header'
+import HeaderWrapper from '@/components/Layout/HeaderWrapper'
 
 // Font configurations
 const inter = Inter({ 
@@ -107,7 +107,7 @@ export default function RootLayout({
         </a>
 
         {/* Header */}
-        <Header />
+        <HeaderWrapper />
 
         {/* Main content wrapper */}
         <div className="flex flex-col min-h-screen pt-20">

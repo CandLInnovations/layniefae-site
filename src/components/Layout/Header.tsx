@@ -4,7 +4,11 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 
-const Header = () => {
+interface HeaderProps {
+  onConsultationClick?: () => void;
+}
+
+const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const navigation = [
@@ -59,12 +63,12 @@ const Header = () => {
 
           {/* CTA Button */}
           <div className="hidden md:block">
-            <Link
-              href="/contact"
+            <button
+              onClick={onConsultationClick}
               className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-plum-700/25"
             >
               Book Consultation
-            </Link>
+            </button>
           </div>
 
           {/* Mobile menu button */}
@@ -150,13 +154,15 @@ const Header = () => {
                 {item.name}
               </Link>
             ))}
-            <Link
-              href="/contact"
-              onClick={() => setIsMenuOpen(false)}
+            <button
+              onClick={() => {
+                setIsMenuOpen(false);
+                onConsultationClick?.();
+              }}
               className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-3 rounded-full font-medium transition-colors duration-300 text-center mt-4 ml-auto mr-4 w-fit"
             >
               Book Consultation
-            </Link>
+            </button>
           </nav>
         </div>
       </div>

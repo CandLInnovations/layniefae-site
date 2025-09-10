@@ -1,13 +1,10 @@
-import React from 'react';
-import { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'Laynie Fae - Sacred Blooms & Pagan Wedding Ceremonies',
-  description: 'Beautiful pagan wedding ceremonies and sacred floral arrangements that honor nature and celebrate your unique love story.',
-  keywords: 'pagan wedding, handfasting, sacred flowers, nature ceremony, spiritual wedding, botanical arrangements',
-};
+import React, { useState } from 'react';
+import ConsultationWizard from '@/components/ConsultationWizard';
 
 export default function HomePage() {
+  const [showWizard, setShowWizard] = useState(false);
   return (
     <div className="min-h-screen bg-gradient-to-b from-mist-800 to-rose-800">
 
@@ -25,7 +22,10 @@ export default function HomePage() {
                 Every bloom is chosen with intention, every ritual crafted with reverence.
               </p>
               <div className="flex flex-wrap gap-4">
-                <button className="bg-plum-700 hover:bg-plum-800 text-white px-8 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
+                <button 
+                  onClick={() => setShowWizard(true)}
+                  className="bg-plum-700 hover:bg-plum-800 text-white px-8 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"
+                >
                   Plan Your Ceremony
                 </button>
                 <button className="border-2 border-forest-600 text-forest-600 hover:bg-forest-600 hover:text-white px-8 py-3 rounded-full font-medium transition-all duration-300">
@@ -103,7 +103,10 @@ export default function HomePage() {
             Let's craft a ceremony and floral experience that honors your love 
             and celebrates the divine feminine energy of nature.
           </p>
-          <button className="bg-white text-midnight-800 hover:bg-mist-100 px-10 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg">
+          <button 
+            onClick={() => setShowWizard(true)}
+            className="bg-white text-midnight-800 hover:bg-mist-100 px-10 py-4 rounded-full font-semibold text-lg transition-all duration-300 transform hover:scale-105 shadow-lg"
+          >
             Start Your Journey
           </button>
         </div>
@@ -133,6 +136,11 @@ export default function HomePage() {
           </p>
         </div>
       </footer>
+
+      {/* Consultation Wizard */}
+      {showWizard && (
+        <ConsultationWizard onClose={() => setShowWizard(false)} />
+      )}
     </div>
   );
 }

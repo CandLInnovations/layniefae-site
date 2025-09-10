@@ -1,13 +1,10 @@
-import React from 'react';
-import { Metadata } from 'next';
+'use client';
 
-export const metadata: Metadata = {
-  title: 'About Laynie Fae - Sacred Floral Artist & Ceremony Officiant',
-  description: 'Meet Laynie, a passionate floral artist and pagan ceremony officiant based in Northern Arizona, crafting botanical magic since 2018.',
-  keywords: 'about laynie fae, pagan florist, sacred botanicals, northern arizona, floral artist, handfasting officiant',
-};
+import React, { useState } from 'react';
+import ConsultationWizard from '@/components/ConsultationWizard';
 
 export default function AboutPage() {
+  const [showWizard, setShowWizard] = useState(false);
   return (
     <div className="min-h-screen bg-gradient-to-b from-midnight-900 to-forest-900">
       
@@ -144,7 +141,10 @@ export default function AboutPage() {
             Let's weave your dreams into reality with sacred botanicals and blessed ceremonies.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <button className="bg-plum-700 hover:bg-plum-600 text-white px-8 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg">
+            <button 
+              onClick={() => setShowWizard(true)}
+              className="bg-plum-700 hover:bg-plum-600 text-white px-8 py-3 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg"
+            >
               Begin Your Journey
             </button>
             <button className="border-2 border-rose-600 text-rose-600 hover:bg-rose-600 hover:text-white px-8 py-3 rounded-full font-medium transition-all duration-300">
@@ -153,6 +153,11 @@ export default function AboutPage() {
           </div>
         </div>
       </section>
+
+      {/* Consultation Wizard */}
+      {showWizard && (
+        <ConsultationWizard onClose={() => setShowWizard(false)} />
+      )}
 
     </div>
   );
