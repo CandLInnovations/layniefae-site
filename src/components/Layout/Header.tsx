@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useCart } from '@/hooks/useCart';
 
 interface HeaderProps {
   onConsultationClick?: () => void;
@@ -10,10 +11,13 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { cart, setIsCartOpen } = useCart();
 
   const navigation = [
     { name: 'Home', href: '/' },
     { name: 'Services', href: '/services' },
+    { name: 'Shop', href: '/shop' },
+    { name: 'Gift Cards', href: '/gift-cards' },
     { name: 'Gallery', href: '/gallery' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
@@ -61,8 +65,23 @@ const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
             ))}
           </nav>
 
-          {/* CTA Button */}
-          <div className="hidden md:block">
+          {/* Cart and CTA Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
+            <button
+              onClick={() => setIsCartOpen(true)}
+              className="relative p-3 text-mist-200 hover:text-rose-100 transition-colors duration-300 rounded-full hover:bg-midnight-800"
+              title="Shopping Cart"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.68 8.32a2 2 0 002 2h9.36a2 2 0 002-2L17 13m-8 0V9a3 3 0 116 0v4m-6 0h6" />
+              </svg>
+              {cart.itemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-plum-600 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center animate-pulse">
+                  {cart.itemCount}
+                </span>
+              )}
+            </button>
+            
             <button
               onClick={onConsultationClick}
               className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-plum-700/25"

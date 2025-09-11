@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter, Crimson_Text, Dancing_Script } from 'next/font/google'
 import './globals.css'
 import HeaderWrapper from '@/components/Layout/HeaderWrapper'
+import { CartProvider } from '@/components/CartProvider'
 
 // Font configurations
 const inter = Inter({ 
@@ -98,23 +99,25 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
       </head>
       <body className={`antialiased bg-midnight-900 text-mist-100 font-sans`}>
-        {/* Skip to main content for accessibility */}
-        <a
-          href="#main"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-plum-600 text-white px-4 py-2 rounded-md z-50"
-        >
-          Skip to main content
-        </a>
+        <CartProvider>
+          {/* Skip to main content for accessibility */}
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-plum-600 text-white px-4 py-2 rounded-md z-50"
+          >
+            Skip to main content
+          </a>
 
-        {/* Header */}
-        <HeaderWrapper />
+          {/* Header */}
+          <HeaderWrapper />
 
-        {/* Main content wrapper */}
-        <div className="flex flex-col min-h-screen pt-20">
-          <main id="main" className="flex-grow">
-            {children}
-          </main>
-        </div>
+          {/* Main content wrapper */}
+          <div className="flex flex-col min-h-screen pt-20">
+            <main id="main" className="flex-grow">
+              {children}
+            </main>
+          </div>
+        </CartProvider>
 
         {/* Structured data for SEO */}
         <script

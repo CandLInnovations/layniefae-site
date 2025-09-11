@@ -173,9 +173,11 @@
   font-family: var(--font-dancing);
 }
 
-/* Smooth scrolling */
-html {
-  scroll-behavior: smooth;
+/* Smooth scrolling - updated for Next.js compatibility */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 
 /* Focus styles for accessibility */
