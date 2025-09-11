@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Product, ProductCategory, Element, ProductSearchResult } from '@/types/product';
+import { Product, Element, ProductSearchResult } from '@/types/product';
 import { useCart } from '@/hooks/useCart';
 
 export default function ShopPage() {
@@ -57,7 +57,7 @@ export default function ShopPage() {
       <section className="pt-32 pb-16 px-4">
         <div className="max-w-7xl mx-auto text-center">
           <h1 className="font-serif text-5xl md:text-6xl text-mist-100 mb-6">
-            Sacred Marketplace
+            Mystical Marketplace
           </h1>
           <div className="w-24 h-1 bg-plum-600 mx-auto mb-8"></div>
           <p className="text-xl text-mist-100 leading-relaxed max-w-3xl mx-auto">
@@ -90,10 +90,12 @@ export default function ShopPage() {
                 {/* Product Image */}
                 <div className="relative h-64 bg-midnight-700 overflow-hidden">
                   <div className="absolute inset-0 bg-gradient-to-t from-midnight-900/50 to-transparent z-10"></div>
-                  {product.images[0] ? (
-                    <div className="w-full h-full flex items-center justify-center text-6xl bg-midnight-700">
-                      🌸
-                    </div>
+                  {product.images && product.images.length > 0 && product.images[0].url ? (
+                    <img 
+                      src={product.images[0].url} 
+                      alt={product.images[0].altText || product.name}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center text-6xl bg-midnight-700">
                       🌸

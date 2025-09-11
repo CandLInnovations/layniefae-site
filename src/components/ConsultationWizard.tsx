@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Image from 'next/image';
 import { FiveFoldSymbol, BowenKnot, QuaternaryCelticKnot, MotherhoodKnot } from '@/components/CelticSymbols';
 
 interface FormData {
@@ -619,9 +620,11 @@ const ConsultationWizard: React.FC<{ onClose: () => void }> = ({ onClose }) => {
                         <div className="grid grid-cols-3 gap-3 max-h-48 overflow-y-auto p-2 border border-plum-200 rounded-2xl bg-white/50">
                           {formData.inspirationImages.map((file, index) => (
                             <div key={index} className="relative group">
-                              <img
+                              <Image
                                 src={URL.createObjectURL(file)}
                                 alt={`Inspiration ${index + 1}`}
+                                width={80}
+                                height={80}
                                 className="w-full h-20 object-cover rounded-lg"
                               />
                               <button

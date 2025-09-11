@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { ProductCategory, Element } from '@/types/product';
+import ImageUpload from '@/components/ImageUpload';
 
 export default function NewProductPage() {
   const [isLoading, setIsLoading] = useState(false);
@@ -20,7 +21,7 @@ export default function NewProductPage() {
       moonPhase: '',
       chakras: [] as string[]
     },
-    images: [] as File[]
+    images: [] as { url: string; alt: string }[]
   });
   const [customIntention, setCustomIntention] = useState('');
   const [allCategories, setAllCategories] = useState<{id: string, name: string, slug: string}[]>([]);
@@ -400,6 +401,16 @@ export default function NewProductPage() {
                   <option value="waning-crescent">Waning Crescent 🌘</option>
                 </select>
               </div>
+            </div>
+
+            {/* Product Images */}
+            <div className="border-t border-plum-800/30 pt-8">
+              <h3 className="text-lg font-medium text-mist-100 mb-6">Product Images</h3>
+              <ImageUpload
+                onImageUpload={(images) => setProduct(prev => ({ ...prev, images }))}
+                existingImages={product.images}
+                maxImages={5}
+              />
             </div>
 
             {/* Submit Button */}

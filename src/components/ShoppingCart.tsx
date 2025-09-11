@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import { useCart } from '@/hooks/useCart';
 
 export default function ShoppingCart() {
@@ -65,9 +66,11 @@ export default function ShoppingCart() {
                     {/* Product Image */}
                     <div className="w-16 h-16 rounded-lg bg-midnight-600 flex-shrink-0 overflow-hidden">
                       {item.image ? (
-                        <img 
+                        <Image 
                           src={item.image} 
                           alt={item.name}
+                          width={64}
+                          height={64}
                           className="w-full h-full object-cover"
                         />
                       ) : (

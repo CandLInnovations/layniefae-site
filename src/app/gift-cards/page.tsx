@@ -66,9 +66,9 @@ export default function GiftCardsPage() {
     if (!giftCardData.purchaserEmail.trim()) newErrors.purchaserEmail = 'Your email is required';
     else if (!/\S+@\S+\.\S+/.test(giftCardData.purchaserEmail)) newErrors.purchaserEmail = 'Email is invalid';
 
-    if (!giftCardData.recipientName.trim()) newErrors.recipientName = 'Recipient name is required';
-    if (!giftCardData.recipientEmail.trim()) newErrors.recipientEmail = 'Recipient email is required';
-    else if (!/\S+@\S+\.\S+/.test(giftCardData.recipientEmail)) newErrors.recipientEmail = 'Recipient email is invalid';
+    if (!giftCardData.recipientName?.trim()) newErrors.recipientName = 'Recipient name is required';
+    if (!giftCardData.recipientEmail?.trim()) newErrors.recipientEmail = 'Recipient email is required';
+    else if (!/\S+@\S+\.\S+/.test(giftCardData.recipientEmail || '')) newErrors.recipientEmail = 'Recipient email is invalid';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -91,7 +91,7 @@ export default function GiftCardsPage() {
       [
         { optionId: 'design', optionName: 'Design', value: selectedDesign?.name || '', additionalPrice: 0 },
         { optionId: 'amount', optionName: 'Amount', value: `$${giftCardData.amount}`, additionalPrice: 0 },
-        { optionId: 'recipient', optionName: 'Recipient', value: giftCardData.recipientName, additionalPrice: 0 },
+        { optionId: 'recipient', optionName: 'Recipient', value: giftCardData.recipientName || '', additionalPrice: 0 },
         { optionId: 'message', optionName: 'Message', value: giftCardData.message || 'No message', additionalPrice: 0 }
       ],
       giftCardData.design,
@@ -272,7 +272,7 @@ export default function GiftCardsPage() {
                     placeholder="Share your heartfelt message of love and light..."
                     maxLength={300}
                   />
-                  <p className="text-xs text-mist-400 mt-1">{giftCardData.message.length}/300 characters</p>
+                  <p className="text-xs text-mist-400 mt-1">{(giftCardData.message || '').length}/300 characters</p>
                 </div>
               </div>
 

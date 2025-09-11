@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/hooks/useCart';
 import Script from 'next/script';
@@ -59,7 +59,7 @@ export default function CheckoutPage() {
 
     // Try to initialize immediately if Square is already loaded
     initWhenReady();
-  }, [cart.items.length]); // Re-run if cart changes
+  }, [cart.items.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const initializeSquarePayments = async (retryCount = 0) => {
     if (!window.Square) {

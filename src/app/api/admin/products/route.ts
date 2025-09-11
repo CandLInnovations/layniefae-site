@@ -80,10 +80,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Add default image if none provided
+    // Handle images
     const images = productData.images && productData.images.length > 0 
-      ? productData.images 
-      : [{ url: '/images/products/default-product.jpg', alt: productData.name }];
+      ? productData.images.map((img: any, index: number) => ({
+          url: img.url,
+          altText: img.alt || productData.name,
+          isPrimary: index === 0,
+          sortOrder: index
+        }))
+      : [{ 
+          url: '/images/products/default-product.jpg', 
+          altText: productData.name,
+          isPrimary: true,
+          sortOrder: 0
+        }];
 
     // Find category by slug
     const { data: category, error: categoryError } = await supabaseAdmin

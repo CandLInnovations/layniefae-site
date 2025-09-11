@@ -128,6 +128,38 @@ export default function AdminDashboard() {
     router.push('/admin/login');
   };
 
+  const handleEditProduct = (productId: string) => {
+    // For now, redirect to product creation page with edit mode
+    // TODO: Create a proper edit page or modal
+    alert(`Edit functionality for product ${productId} coming soon!`);
+  };
+
+  const handleDeleteProduct = async (productId: string) => {
+    if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('admin-token')}`
+        }
+      });
+
+      if (response.ok) {
+        fetchProducts(); // Refresh the product list
+        alert('Product deleted successfully');
+      } else {
+        const error = await response.json();
+        alert(`Error deleting product: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      alert('Failed to delete product. Please try again.');
+    }
+  };
+
   const formatCurrency = (amount: number) => {
     return `$${(amount / 100).toFixed(2)}`;
   };
@@ -330,11 +362,11 @@ export default function AdminDashboard() {
                           <div className="flex items-center space-x-3 mb-2">
                             <h3 className="font-serif text-xl text-mist-100">{product.name}</h3>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              product.isActive 
+                              (product as any).is_active 
                                 ? 'bg-green-700/30 text-green-300 border border-green-600/30' 
                                 : 'bg-red-700/30 text-red-300 border border-red-600/30'
                             }`}>
-                              {product.isActive ? 'Active' : 'Inactive'}
+                              {(product as any).is_active ? 'Active' : 'Inactive'}
                             </span>
                           </div>
                           <p className="text-mist-300 mb-3 line-clamp-2">{product.description}</p>
@@ -365,10 +397,18 @@ export default function AdminDashboard() {
                           )}
                         </div>
                         <div className="flex items-center space-x-2 ml-6">
-                          <button className="p-2 bg-plum-700/30 hover:bg-plum-700/50 text-plum-300 rounded-lg transition-colors">
+                          <button 
+                            onClick={() => handleEditProduct(product.id)}
+                            className="p-2 bg-plum-700/30 hover:bg-plum-700/50 text-plum-300 rounded-lg transition-colors"
+                            title="Edit Product"
+                          >
                             ✏️
                           </button>
-                          <button className="p-2 bg-red-700/30 hover:bg-red-700/50 text-red-300 rounded-lg transition-colors">
+                          <button 
+                            onClick={() => handleDeleteProduct(product.id)}
+                            className="p-2 bg-red-700/30 hover:bg-red-700/50 text-red-300 rounded-lg transition-colors"
+                            title="Delete Product"
+                          >
                             🗑️
                           </button>
                         </div>
