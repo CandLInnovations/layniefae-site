@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
+import Image from 'next/image';
 
 interface ImageUploadProps {
   onImageUpload: (images: { url: string; alt: string }[]) => void;
@@ -156,11 +157,12 @@ export default function ImageUpload({
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {images.map((image, index) => (
             <div key={`image-${index}`} className="relative group">
-              <div className="aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
-                <img
+              <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
+                <Image
                   src={image.url}
                   alt={image.alt}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
                 />
               </div>
               
