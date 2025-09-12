@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Product, ProductCategory } from '@/types/product';
+import { Order, OrderStatus, FulfillmentStatus } from '@/types/order';
 
 interface DashboardStats {
   totalProducts: number;
@@ -13,13 +14,26 @@ interface DashboardStats {
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<DashboardStats>({
-    totalProducts: 3,
-    totalOrders: 1,
-    totalRevenue: 1800,
+    totalProducts: 0,
+    totalOrders: 0,
+    totalRevenue: 0,
     lowStockItems: 0
   });
   const [activeTab, setActiveTab] = useState('overview');
   const [products, setProducts] = useState<Product[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [orderSummary, setOrderSummary] = useState({
+    totalOrders: 0,
+    pendingOrders: 0,
+    completedOrders: 0,
+    totalRevenue: 0,
+    averageOrderValue: 0
+  });
+  const [orderFilters, setOrderFilters] = useState({
+    status: '',
+    search: ''
+  });
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(false);
   const [categories, setCategories] = useState<{id: string, name: string, slug: string, is_default: boolean}[]>([]);
   const [newCategory, setNewCategory] = useState('');
@@ -58,6 +72,63 @@ export default function AdminDashboard() {
       }
     } catch (error) {
       console.error('Error fetching categories:', error);
+    }
+  };
+
+  // Fetch orders from database
+  const fetchOrders = async () => {
+    try {
+      const token = localStorage.getItem('admin-token');
+      const params = new URLSearchParams({
+        page: '1',
+        limit: '20',
+        ...(orderFilters.status && { status: orderFilters.status }),
+        ...(orderFilters.search && { search: orderFilters.search })
+      });
+
+      const response = await fetch(`/api/admin/orders?${params}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setOrders(data.orders || []);
+        setOrderSummary(data.summary || orderSummary);
+        // Update overview stats with order data
+        setStats(prev => ({
+          ...prev,
+          totalOrders: data.summary?.totalOrders || 0,
+          totalRevenue: data.summary?.totalRevenue || 0
+        }));
+      }
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+    }
+  };
+
+  const updateOrderStatus = async (orderId: string, status: string, fulfillmentStatus?: string) => {
+    try {
+      const token = localStorage.getItem('admin-token');
+      const response = await fetch('/api/admin/orders', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          orderId,
+          status,
+          fulfillmentStatus
+        })
+      });
+
+      if (response.ok) {
+        fetchOrders(); // Refresh orders
+      }
+    } catch (error) {
+      console.error('Error updating order:', error);
     }
   };
 
@@ -120,8 +191,17 @@ export default function AdminDashboard() {
     } else {
       fetchCategories();
       fetchProducts();
+      fetchOrders();
     }
   }, [router]);
+
+  // Handle URL tab parameter
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['overview', 'products', 'categories', 'orders', 'giftcards', 'analytics'].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const handleLogout = () => {
     localStorage.removeItem('admin-token');
@@ -129,9 +209,7 @@ export default function AdminDashboard() {
   };
 
   const handleEditProduct = (productId: string) => {
-    // For now, redirect to product creation page with edit mode
-    // TODO: Create a proper edit page or modal
-    alert(`Edit functionality for product ${productId} coming soon!`);
+    router.push(`/admin/products/edit/${productId}`);
   };
 
   const handleDeleteProduct = async (productId: string) => {
@@ -276,10 +354,14 @@ export default function AdminDashboard() {
                 <div>
                   <h3 className="text-lg font-medium text-mist-200 mb-4">Recent Activity</h3>
                   <div className="space-y-3">
-                    <div className="flex items-center space-x-3 p-3 bg-midnight-700/50 rounded-lg">
-                      <span className="text-green-400">✅</span>
-                      <span className="text-mist-300 text-sm">New order completed - $18.00</span>
-                    </div>
+                    {orders.length > 0 && (
+                      <div className="flex items-center space-x-3 p-3 bg-midnight-700/50 rounded-lg">
+                        <span className="text-green-400">✅</span>
+                        <span className="text-mist-300 text-sm">
+                          Latest order - ${(orders[0]?.total_amount / 100).toFixed(2)} from {orders[0]?.customer_email}
+                        </span>
+                      </div>
+                    )}
                     <div className="flex items-center space-x-3 p-3 bg-midnight-700/50 rounded-lg">
                       <span className="text-blue-400">📦</span>
                       <span className="text-mist-300 text-sm">Product inventory updated</span>
@@ -295,7 +377,7 @@ export default function AdminDashboard() {
                   <h3 className="text-lg font-medium text-mist-200 mb-4">Quick Actions</h3>
                   <div className="space-y-3">
                     <button 
-                      onClick={() => setActiveTab('products')}
+                      onClick={() => router.push('/admin/products/new')}
                       className="w-full bg-plum-700 hover:bg-plum-600 text-white p-4 rounded-lg transition-colors text-left"
                     >
                       <div className="flex items-center space-x-3">
@@ -531,11 +613,158 @@ export default function AdminDashboard() {
 
           {activeTab === 'orders' && (
             <div>
-              <h2 className="font-serif text-2xl text-mist-100 mb-6">Order Management</h2>
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📦</div>
-                <h3 className="text-xl text-mist-200 mb-4">Order Dashboard Coming Soon</h3>
-                <p className="text-mist-400">View, manage, and fulfill sacred orders</p>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-serif text-2xl text-mist-100">Order Management</h2>
+                <div className="flex space-x-3">
+                  <select 
+                    value={orderFilters.status}
+                    onChange={(e) => {
+                      setOrderFilters(prev => ({ ...prev, status: e.target.value }));
+                      setTimeout(fetchOrders, 100);
+                    }}
+                    className="px-3 py-2 bg-midnight-700 text-mist-100 border border-plum-800/50 rounded-lg focus:border-plum-600 focus:ring-1 focus:ring-plum-600"
+                  >
+                    <option value="">All Orders</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="CONFIRMED">Confirmed</option>
+                    <option value="PROCESSING">Processing</option>
+                    <option value="SHIPPED">Shipped</option>
+                    <option value="DELIVERED">Delivered</option>
+                    <option value="CANCELLED">Cancelled</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Search orders..."
+                    value={orderFilters.search}
+                    onChange={(e) => {
+                      setOrderFilters(prev => ({ ...prev, search: e.target.value }));
+                      setTimeout(fetchOrders, 500);
+                    }}
+                    className="px-3 py-2 bg-midnight-700 text-mist-100 border border-plum-800/50 rounded-lg focus:border-plum-600 focus:ring-1 focus:ring-plum-600"
+                  />
+                </div>
+              </div>
+
+              {/* Order Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-midnight-800/50 rounded-xl p-4 border border-plum-800/30">
+                  <div className="text-sm text-mist-400">Total Orders</div>
+                  <div className="text-2xl font-bold text-mist-100">{orderSummary.totalOrders}</div>
+                </div>
+                <div className="bg-midnight-800/50 rounded-xl p-4 border border-plum-800/30">
+                  <div className="text-sm text-mist-400">Pending</div>
+                  <div className="text-2xl font-bold text-rose-300">{orderSummary.pendingOrders}</div>
+                </div>
+                <div className="bg-midnight-800/50 rounded-xl p-4 border border-plum-800/30">
+                  <div className="text-sm text-mist-400">Completed</div>
+                  <div className="text-2xl font-bold text-green-300">{orderSummary.completedOrders}</div>
+                </div>
+                <div className="bg-midnight-800/50 rounded-xl p-4 border border-plum-800/30">
+                  <div className="text-sm text-mist-400">Revenue</div>
+                  <div className="text-2xl font-bold text-plum-300">${(orderSummary.totalRevenue / 100).toFixed(2)}</div>
+                </div>
+              </div>
+
+              {/* Orders List */}
+              <div className="space-y-4">
+                {orders.length === 0 ? (
+                  <div className="text-center py-12">
+                    <div className="text-6xl mb-4">📦</div>
+                    <h3 className="text-xl text-mist-200 mb-4">No Orders Found</h3>
+                    <p className="text-mist-400">Orders will appear here once customers start purchasing</p>
+                  </div>
+                ) : (
+                  orders.map((order) => (
+                    <div key={order.id} className="bg-midnight-800/50 rounded-2xl p-6 border border-plum-800/30">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="font-serif text-lg text-mist-100">
+                            Order #{order.id.substring(0, 8)}...
+                          </h3>
+                          <p className="text-sm text-mist-300">{order.customer_email}</p>
+                          <p className="text-xs text-mist-400">
+                            {new Date(order.created_at).toLocaleDateString()} at {new Date(order.created_at).toLocaleTimeString()}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xl font-bold text-plum-300">
+                            ${(order.total_amount / 100).toFixed(2)}
+                          </div>
+                          <div className="flex space-x-2 mt-2">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              order.status === 'DELIVERED' ? 'bg-green-700/30 text-green-300' :
+                              order.status === 'CANCELLED' ? 'bg-red-700/30 text-red-300' :
+                              'bg-yellow-700/30 text-yellow-300'
+                            }`}>
+                              {order.status}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Order Items */}
+                      {order.order_items && order.order_items.length > 0 && (
+                        <div className="bg-midnight-700/50 rounded-lg p-4 mb-4">
+                          <div className="text-sm text-mist-400 mb-2">Items ({order.order_items.length})</div>
+                          <div className="space-y-2">
+                            {order.order_items.slice(0, 3).map((item, idx) => (
+                              <div key={idx} className="flex items-center space-x-3 text-sm">
+                                <div className="w-8 h-8 bg-midnight-600 rounded flex items-center justify-center text-xs">
+                                  {item.quantity}x
+                                </div>
+                                <span className="text-mist-200 flex-1">{item.product_name}</span>
+                                <span className="text-plum-300">${(item.total_price / 100).toFixed(2)}</span>
+                              </div>
+                            ))}
+                            {order.order_items.length > 3 && (
+                              <div className="text-xs text-mist-400">
+                                +{order.order_items.length - 3} more items
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Quick Actions */}
+                      <div className="flex space-x-2">
+                        {order.status === 'CONFIRMED' && (
+                          <button
+                            onClick={() => updateOrderStatus(order.id, 'PROCESSING')}
+                            className="px-3 py-1 bg-blue-700 hover:bg-blue-600 text-white text-sm rounded-lg transition-colors"
+                          >
+                            Start Processing
+                          </button>
+                        )}
+                        {order.status === 'PROCESSING' && (
+                          <button
+                            onClick={() => updateOrderStatus(order.id, 'SHIPPED')}
+                            className="px-3 py-1 bg-green-700 hover:bg-green-600 text-white text-sm rounded-lg transition-colors"
+                          >
+                            Mark Shipped
+                          </button>
+                        )}
+                        {order.status === 'SHIPPED' && (
+                          <button
+                            onClick={() => updateOrderStatus(order.id, 'DELIVERED')}
+                            className="px-3 py-1 bg-plum-700 hover:bg-plum-600 text-white text-sm rounded-lg transition-colors"
+                          >
+                            Mark Delivered
+                          </button>
+                        )}
+                        {order.square_receipt_url && (
+                          <a
+                            href={order.square_receipt_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3 py-1 bg-midnight-600 hover:bg-midnight-500 text-mist-200 text-sm rounded-lg transition-colors"
+                          >
+                            View Receipt
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}

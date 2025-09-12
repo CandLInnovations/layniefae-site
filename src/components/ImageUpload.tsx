@@ -160,8 +160,9 @@ export default function ImageUpload({
               <div className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200">
                 <Image
                   src={image.url}
-                  alt={image.alt}
+                  alt={image.alt || 'Product image'}
                   fill
+                  sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
                   className="object-cover"
                 />
               </div>
@@ -184,7 +185,7 @@ export default function ImageUpload({
               {/* Alt Text Input */}
               <input
                 type="text"
-                value={image.alt}
+                value={image.alt || ''}
                 onChange={(e) => updateAltText(index, e.target.value)}
                 placeholder="Image description..."
                 className="mt-2 w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-purple-500"

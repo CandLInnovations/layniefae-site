@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useCart } from '@/hooks/useCart';
+import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 
 interface HeaderProps {
   onConsultationClick?: () => void;
@@ -12,6 +13,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cart, setIsCartOpen } = useCart();
+  const { customer, isAuthenticated, logout } = useCustomerAuth();
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -65,7 +67,7 @@ const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
             ))}
           </nav>
 
-          {/* Cart and CTA Buttons */}
+          {/* Cart and Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <button
               onClick={() => setIsCartOpen(true)}
@@ -81,10 +83,50 @@ const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
                 </span>
               )}
             </button>
+
+            {/* Authentication Buttons */}
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-3">
+                <Link
+                  href="/account/profile"
+                  className="flex items-center space-x-2 text-mist-200 hover:text-rose-100 transition-colors duration-300 px-3 py-2 rounded-lg hover:bg-midnight-800"
+                  title="Your Profile"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                  <span className="text-sm">
+                    {customer?.first_name || 'Profile'}
+                  </span>
+                </Link>
+                <button
+                  onClick={logout}
+                  className="text-mist-400 hover:text-mist-200 text-sm transition-colors duration-300"
+                  title="Sign Out"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center space-x-3">
+                <Link
+                  href="/account/login"
+                  className="text-mist-200 hover:text-rose-100 transition-colors duration-300 px-3 py-2 rounded-lg hover:bg-midnight-800"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/account/register"
+                  className="bg-plum-700 hover:bg-plum-600 text-white px-4 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105"
+                >
+                  Join 🌙
+                </Link>
+              </div>
+            )}
             
             <button
               onClick={onConsultationClick}
-              className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-plum-700/25"
+              className="bg-gradient-to-r from-rose-700 to-plum-700 hover:from-rose-600 hover:to-plum-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-plum-700/25"
             >
               Book Consultation
             </button>
@@ -173,12 +215,57 @@ const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
                 {item.name}
               </Link>
             ))}
+            
+            {/* Mobile Authentication Links */}
+            <div className="border-t border-plum-800/30 pt-4 space-y-3">
+              {isAuthenticated ? (
+                <>
+                  <Link
+                    href="/account/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="flex items-center justify-end space-x-2 text-mist-200 hover:text-rose-100 transition-colors duration-300 py-2 px-4 rounded-lg hover:bg-midnight-800"
+                  >
+                    <span>Profile ({customer?.first_name || 'Account'})</span>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                  </Link>
+                  <button
+                    onClick={() => {
+                      logout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="text-mist-400 hover:text-mist-200 transition-colors duration-300 py-2 px-4 text-right w-full"
+                  >
+                    Sign Out
+                  </button>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href="/account/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-mist-200 hover:text-rose-100 transition-colors duration-300 py-2 px-4 rounded-lg hover:bg-midnight-800 text-right block"
+                  >
+                    Sign In
+                  </Link>
+                  <Link
+                    href="/account/register"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-3 rounded-full font-medium transition-colors duration-300 text-center ml-auto mr-4 w-fit block"
+                  >
+                    Join 🌙
+                  </Link>
+                </>
+              )}
+            </div>
+            
             <button
               onClick={() => {
                 setIsMenuOpen(false);
                 onConsultationClick?.();
               }}
-              className="bg-plum-700 hover:bg-plum-600 text-white px-6 py-3 rounded-full font-medium transition-colors duration-300 text-center mt-4 ml-auto mr-4 w-fit"
+              className="bg-gradient-to-r from-rose-700 to-plum-700 hover:from-rose-600 hover:to-plum-600 text-white px-6 py-3 rounded-full font-medium transition-colors duration-300 text-center mt-4 ml-auto mr-4 w-fit"
             >
               Book Consultation
             </button>

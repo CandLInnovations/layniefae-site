@@ -80,7 +80,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${inter.variable} ${crimsonText.variable} ${dancingScript.variable}`}>
+    <html lang="en" className={`${inter.variable} ${crimsonText.variable} ${dancingScript.variable}`} data-scroll-behavior="smooth">
       <head>
         {/* Preconnect to external domains for performance */}
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

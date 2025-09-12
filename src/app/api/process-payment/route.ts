@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { squareClient } from '@/lib/square-client';
+import { supabaseAdmin } from '@/lib/supabase';
 import { randomUUID } from 'crypto';
 
 export async function POST(request: NextRequest) {
@@ -61,8 +62,76 @@ export async function POST(request: NextRequest) {
     if (response && response.payment) {
       const payment = response.payment;
       
-      // TODO: Save order to database here
-      // For now, we'll just return success with order details
+      // Save order to database
+      const orderId = randomUUID();
+      
+      // Check if customer is logged in by looking up their profile
+      let customerId = null;
+      try {
+        const { data: customerProfile } = await supabaseAdmin
+          .from('customer_profiles')
+          .select('id')
+          .eq('email', customerInfo.email)
+          .single();
+        
+        if (customerProfile) {
+          customerId = customerProfile.id;
+        }
+      } catch (error) {
+        // Customer not found or not logged in - that's okay, order will still be saved
+        console.log('No customer profile found for email:', customerInfo.email);
+      }
+      
+      const orderData = {
+        id: orderId,
+        square_payment_id: payment.id,
+        status: 'CONFIRMED',
+        total_amount: amountInCents,
+        currency: currency.toUpperCase(),
+        customer_id: customerId, // Link to customer profile if they're registered
+        customer_email: customerInfo.email,
+        customer_name: customerInfo.name || '',
+        payment_method: 'SQUARE',
+        square_receipt_url: payment.receiptUrl,
+        fulfillment_status: 'PENDING',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+
+      const { data: savedOrder, error: orderError } = await supabaseAdmin
+        .from('orders')
+        .insert(orderData)
+        .select()
+        .single();
+
+      if (orderError) {
+        console.error('Error saving order:', orderError);
+        // Don't fail the payment, but log the error
+      }
+
+      // Save order items
+      if (savedOrder && cartItems.length > 0) {
+        const orderItems = cartItems.map(item => ({
+          id: randomUUID(),
+          order_id: orderId,
+          product_id: item.productId,
+          product_name: item.name,
+          product_image: item.image || null,
+          quantity: item.quantity,
+          unit_price: item.price,
+          total_price: item.price * item.quantity,
+          variation_name: item.variationName || null,
+          customizations: item.customizations || null
+        }));
+
+        const { error: itemsError } = await supabaseAdmin
+          .from('order_items')
+          .insert(orderItems);
+
+        if (itemsError) {
+          console.error('Error saving order items:', itemsError);
+        }
+      }
       
       const orderDetails = {
         orderId: payment.id,

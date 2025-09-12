@@ -2,11 +2,13 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ProductCategory, Element } from '@/types/product';
+import { Element } from '@/types/product';
 import ImageUpload from '@/components/ImageUpload';
 
-export default function NewProductPage() {
-  const [isLoading, setIsLoading] = useState(false);
+export default function EditProductPage({ params }: { params: Promise<{ id: string }> }) {
+  const [productId, setProductId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
   const [product, setProduct] = useState({
     name: '',
     description: '',
@@ -29,7 +31,34 @@ export default function NewProductPage() {
   const [allCategories, setAllCategories] = useState<{id: string, name: string, slug: string}[]>([]);
   const router = useRouter();
 
-  // Fetch categories from database
+  // Resolve params and load data
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const resolvedParams = await params;
+        setProductId(resolvedParams.id);
+        
+        // Check admin authentication
+        const token = localStorage.getItem('admin-token');
+        if (!token) {
+          router.push('/admin/login');
+          return;
+        }
+
+        // Load categories and product data in parallel
+        await Promise.all([
+          loadCategories(),
+          loadProduct(resolvedParams.id, token)
+        ]);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        router.push('/admin/dashboard');
+      }
+    };
+
+    loadData();
+  }, [params, router]);
+
   const loadCategories = async () => {
     try {
       const response = await fetch('/api/admin/categories');
@@ -42,16 +71,51 @@ export default function NewProductPage() {
     }
   };
 
-  useEffect(() => {
-    // Check admin authentication
-    const token = localStorage.getItem('admin-token');
-    if (!token) {
-      router.push('/admin/login');
-    } else {
-      loadCategories();
-    }
-  }, [router]);
+  const loadProduct = async (id: string, token: string) => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/products/${id}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
 
+      if (!response.ok) {
+        throw new Error('Product not found');
+      }
+
+      const productData = await response.json();
+      
+      // Transform data to match form structure
+      setProduct({
+        name: productData.name || '',
+        description: productData.description || '',
+        price: ((productData.price || 0) / 100).toFixed(2), // Convert from cents
+        category: productData.categories?.slug || 'sacred_flowers',
+        subcategory: productData.subcategory || '',
+        stockQuantity: productData.stock_quantity?.toString() || '',
+        isCustomizable: productData.is_customizable || false,
+        ritualProperties: {
+          elements: productData.ritual_properties?.elements || [],
+          intentions: productData.ritual_properties?.intentions || [],
+          moonPhase: productData.ritual_properties?.moon_phases?.[0] || '',
+          chakras: [],
+          sabbats: productData.ritual_properties?.sabbats || [],
+          planetaryAssociations: productData.ritual_properties?.planetaryAssociations || []
+        },
+        images: (productData.images || []).map((img: any) => ({
+          url: img.url,
+          alt: img.altText || img.alt_text || img.alt || productData.name || 'Product image'
+        }))
+      });
+    } catch (error) {
+      console.error('Error loading product:', error);
+      alert('Error loading product. Redirecting to dashboard.');
+      router.push('/admin/dashboard');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const elements = [
     { value: Element.EARTH, label: 'Earth 🌱', color: 'text-green-400' },
@@ -80,20 +144,41 @@ export default function NewProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
+    if (!productId) return;
+
+    setIsSaving(true);
 
     try {
       // Convert price to cents
       const priceInCents = Math.round(parseFloat(product.price) * 100);
       
+      // Transform frontend data to database format
       const productData = {
-        ...product,
+        name: product.name,
+        description: product.description,
         price: priceInCents,
-        stockQuantity: parseInt(product.stockQuantity) || 0,
+        category_id: allCategories.find(cat => cat.slug === product.category)?.id || null,
+        subcategory: product.subcategory,
+        stock_quantity: parseInt(product.stockQuantity) || null,
+        is_customizable: product.isCustomizable,
+        ritual_properties: {
+          elements: product.ritualProperties.elements,
+          intentions: product.ritualProperties.intentions,
+          moon_phases: product.ritualProperties.moonPhase ? [product.ritualProperties.moonPhase] : [],
+          chakras: product.ritualProperties.chakras,
+          sabbats: product.ritualProperties.sabbats,
+          planetaryAssociations: product.ritualProperties.planetaryAssociations
+        },
+        images: product.images.map((img, index) => ({
+          url: img.url,
+          alt_text: img.alt || product.name,
+          is_primary: index === 0,
+          sort_order: index
+        }))
       };
 
-      const response = await fetch('/api/admin/products', {
-        method: 'POST',
+      const response = await fetch(`/api/products/${productId}`, {
+        method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('admin-token')}`
@@ -102,16 +187,16 @@ export default function NewProductPage() {
       });
 
       if (response.ok) {
-        router.push('/admin/dashboard?tab=products&success=created');
+        router.push('/admin/dashboard?tab=products&success=updated');
       } else {
         const error = await response.json();
-        alert(`Error creating product: ${error.message}`);
+        alert(`Error updating product: ${error.error || 'Unknown error'}`);
       }
     } catch (error) {
-      console.error('Error creating product:', error);
-      alert('Failed to create product. Please try again.');
+      console.error('Error updating product:', error);
+      alert('Failed to update product. Please try again.');
     } finally {
-      setIsLoading(false);
+      setIsSaving(false);
     }
   };
 
@@ -198,6 +283,17 @@ export default function NewProductPage() {
     }));
   };
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-midnight-900 to-forest-900 pt-24 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-4 border-plum-600 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-mist-200">Loading sacred product...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-midnight-900 to-forest-900 pt-24">
       {/* Header */}
@@ -211,7 +307,7 @@ export default function NewProductPage() {
               <span>←</span>
               <span>Back to Dashboard</span>
             </button>
-            <h1 className="font-serif text-xl text-mist-100">Create New Product</h1>
+            <h1 className="font-serif text-xl text-mist-100">Edit Sacred Product</h1>
           </div>
         </div>
       </header>
@@ -273,7 +369,7 @@ export default function NewProductPage() {
                 </label>
                 <select
                   value={product.category}
-                  onChange={(e) => setProduct(prev => ({ ...prev, category: e.target.value as ProductCategory }))}
+                  onChange={(e) => setProduct(prev => ({ ...prev, category: e.target.value }))}
                   className="w-full px-4 py-3 bg-mist-100 text-midnight-800 border border-plum-800/50 rounded-lg focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
                 >
                   {allCategories.map((cat) => (
@@ -323,6 +419,16 @@ export default function NewProductPage() {
               <label htmlFor="customizable" className="text-mist-200">
                 This product is customizable
               </label>
+            </div>
+
+            {/* Product Images */}
+            <div className="border-t border-plum-800/30 pt-8">
+              <h3 className="text-lg font-medium text-mist-100 mb-6">Product Images</h3>
+              <ImageUpload
+                onImageUpload={(images) => setProduct(prev => ({ ...prev, images }))}
+                existingImages={product.images}
+                maxImages={5}
+              />
             </div>
 
             {/* Ritual Properties */}
@@ -451,166 +557,156 @@ export default function NewProductPage() {
                   <option value="waning-crescent">Waning Crescent 🌘</option>
                 </select>
               </div>
-            </div>
 
-            {/* Product Images */}
-            <div className="border-t border-plum-800/30 pt-8">
-              <h3 className="text-lg font-medium text-mist-100 mb-6">Product Images</h3>
-              <ImageUpload
-                onImageUpload={(images) => setProduct(prev => ({ ...prev, images }))}
-                existingImages={product.images}
-                maxImages={5}
-              />
-            </div>
-
-            {/* Sabbats Section */}
-            <div className="mb-8">
-              <label className="block text-sm font-medium text-mist-200 mb-4">
-                🌟 Sacred Seasons (Sabbats)
-              </label>
-              
-              {/* Selected Sabbats */}
-              {product.ritualProperties.sabbats.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-xs text-mist-400 mb-2">Selected sabbats:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.ritualProperties.sabbats.map((sabbat, index) => (
-                      <span
-                        key={`selected-sabbat-${index}-${sabbat.toLowerCase().replace(/\s+/g, '-')}`}
-                        className="inline-flex items-center px-3 py-1 bg-earth-700 text-sage-200 rounded-full text-sm"
-                      >
-                        {sabbat}
-                        <button
-                          type="button"
-                          onClick={() => toggleSabbat(sabbat)}
-                          className="ml-2 hover:text-white transition-colors"
+              {/* Sabbats Section */}
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-mist-200 mb-4">
+                  🌟 Sacred Seasons (Sabbats)
+                </label>
+                
+                {/* Selected Sabbats */}
+                {product.ritualProperties.sabbats.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs text-mist-400 mb-2">Selected sabbats:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {product.ritualProperties.sabbats.map((sabbat, index) => (
+                        <span
+                          key={`selected-sabbat-${index}-${sabbat.toLowerCase().replace(/\s+/g, '-')}`}
+                          className="inline-flex items-center px-3 py-1 bg-earth-700 text-sage-200 rounded-full text-sm"
                         >
-                          ✕
-                        </button>
-                      </span>
-                    ))}
+                          {sabbat}
+                          <button
+                            type="button"
+                            onClick={() => toggleSabbat(sabbat)}
+                            className="ml-2 hover:text-white transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
                   </div>
+                )}
+                
+                {/* Available Sabbats */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {sabbats.map((sabbat) => (
+                    <button
+                      key={`sabbat-option-${sabbat.toLowerCase().replace(/\s+/g, '-')}`}
+                      type="button"
+                      onClick={() => toggleSabbat(sabbat)}
+                      className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        product.ritualProperties.sabbats.includes(sabbat)
+                          ? 'bg-earth-700 border-earth-600 text-sage-200'
+                          : 'bg-midnight-700 border-plum-800/50 text-mist-300 hover:bg-midnight-600'
+                      }`}
+                    >
+                      {sabbat}
+                    </button>
+                  ))}
                 </div>
-              )}
-              
-              {/* Available Sabbats */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {sabbats.map((sabbat) => (
-                  <button
-                    key={`sabbat-option-${sabbat.toLowerCase().replace(/\s+/g, '-')}`}
-                    type="button"
-                    onClick={() => toggleSabbat(sabbat)}
-                    className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
-                      product.ritualProperties.sabbats.includes(sabbat)
-                        ? 'bg-earth-700 border-earth-600 text-sage-200'
-                        : 'bg-midnight-700 border-plum-800/50 text-mist-300 hover:bg-midnight-600'
-                    }`}
-                  >
-                    {sabbat}
-                  </button>
-                ))}
+              </div>
+
+              {/* Planetary Associations Section */}
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-mist-200 mb-4">
+                  ⭐ Planetary Energies
+                </label>
+                
+                {/* Selected Planetary Associations */}
+                {product.ritualProperties.planetaryAssociations.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs text-mist-400 mb-2">Selected planetary associations:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {product.ritualProperties.planetaryAssociations.map((planet, index) => (
+                        <span
+                          key={`selected-planet-${index}-${planet.toLowerCase().replace(/\s+/g, '-')}`}
+                          className="inline-flex items-center px-3 py-1 bg-plum-700 text-rose-200 rounded-full text-sm"
+                        >
+                          {planet}
+                          <button
+                            type="button"
+                            onClick={() => togglePlanetaryAssociation(planet)}
+                            className="ml-2 hover:text-white transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Available Planetary Associations */}
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                  {planetaryAssociations.map((planet) => (
+                    <button
+                      key={`planet-option-${planet.toLowerCase().replace(/\s+/g, '-')}`}
+                      type="button"
+                      onClick={() => togglePlanetaryAssociation(planet)}
+                      className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        product.ritualProperties.planetaryAssociations.includes(planet)
+                          ? 'bg-plum-700 border-plum-600 text-rose-200'
+                          : 'bg-midnight-700 border-plum-800/50 text-mist-300 hover:bg-midnight-600'
+                      }`}
+                    >
+                      {planet}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Chakras Section */}
+              <div className="mb-8">
+                <label className="block text-sm font-medium text-mist-200 mb-4">
+                  🌀 Chakra Energies
+                </label>
+                
+                {/* Selected Chakras */}
+                {product.ritualProperties.chakras.length > 0 && (
+                  <div className="mb-4">
+                    <p className="text-xs text-mist-400 mb-2">Selected chakras:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {product.ritualProperties.chakras.map((chakra, index) => (
+                        <span
+                          key={`selected-chakra-${index}-${chakra.toLowerCase().replace(/\s+/g, '-')}`}
+                          className="inline-flex items-center px-3 py-1 bg-purple-700 text-purple-200 rounded-full text-sm"
+                        >
+                          {chakra}
+                          <button
+                            type="button"
+                            onClick={() => toggleChakra(chakra)}
+                            className="ml-2 hover:text-white transition-colors"
+                          >
+                            ✕
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {/* Available Chakras */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {chakras.map((chakra) => (
+                    <button
+                      key={`chakra-option-${chakra.toLowerCase().replace(/\s+/g, '-')}`}
+                      type="button"
+                      onClick={() => toggleChakra(chakra)}
+                      className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
+                        product.ritualProperties.chakras.includes(chakra)
+                          ? 'bg-purple-700 border-purple-600 text-purple-200'
+                          : 'bg-midnight-700 border-plum-800/50 text-mist-300 hover:bg-midnight-600'
+                      }`}
+                    >
+                      {chakra}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
-            {/* Planetary Associations Section */}
-            <div className="mb-8">
-              <label className="block text-sm font-medium text-mist-200 mb-4">
-                ⭐ Planetary Energies
-              </label>
-              
-              {/* Selected Planetary Associations */}
-              {product.ritualProperties.planetaryAssociations.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-xs text-mist-400 mb-2">Selected planetary associations:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.ritualProperties.planetaryAssociations.map((planet, index) => (
-                      <span
-                        key={`selected-planet-${index}-${planet.toLowerCase().replace(/\s+/g, '-')}`}
-                        className="inline-flex items-center px-3 py-1 bg-plum-700 text-rose-200 rounded-full text-sm"
-                      >
-                        {planet}
-                        <button
-                          type="button"
-                          onClick={() => togglePlanetaryAssociation(planet)}
-                          className="ml-2 hover:text-white transition-colors"
-                        >
-                          ✕
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Available Planetary Associations */}
-              <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-                {planetaryAssociations.map((planet) => (
-                  <button
-                    key={`planet-option-${planet.toLowerCase().replace(/\s+/g, '-')}`}
-                    type="button"
-                    onClick={() => togglePlanetaryAssociation(planet)}
-                    className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
-                      product.ritualProperties.planetaryAssociations.includes(planet)
-                        ? 'bg-plum-700 border-plum-600 text-rose-200'
-                        : 'bg-midnight-700 border-plum-800/50 text-mist-300 hover:bg-midnight-600'
-                    }`}
-                  >
-                    {planet}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Chakras Section */}
-            <div className="mb-8">
-              <label className="block text-sm font-medium text-mist-200 mb-4">
-                🌀 Chakra Energies
-              </label>
-              
-              {/* Selected Chakras */}
-              {product.ritualProperties.chakras.length > 0 && (
-                <div className="mb-4">
-                  <p className="text-xs text-mist-400 mb-2">Selected chakras:</p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.ritualProperties.chakras.map((chakra, index) => (
-                      <span
-                        key={`selected-chakra-${index}-${chakra.toLowerCase().replace(/\s+/g, '-')}`}
-                        className="inline-flex items-center px-3 py-1 bg-purple-700 text-purple-200 rounded-full text-sm"
-                      >
-                        {chakra}
-                        <button
-                          type="button"
-                          onClick={() => toggleChakra(chakra)}
-                          className="ml-2 hover:text-white transition-colors"
-                        >
-                          ✕
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {/* Available Chakras */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                {chakras.map((chakra) => (
-                  <button
-                    key={`chakra-option-${chakra.toLowerCase().replace(/\s+/g, '-')}`}
-                    type="button"
-                    onClick={() => toggleChakra(chakra)}
-                    className={`px-3 py-2 rounded-lg border text-sm transition-colors ${
-                      product.ritualProperties.chakras.includes(chakra)
-                        ? 'bg-purple-700 border-purple-600 text-purple-200'
-                        : 'bg-midnight-700 border-plum-800/50 text-mist-300 hover:bg-midnight-600'
-                    }`}
-                  >
-                    {chakra}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Submit Button */}
+            {/* Submit Buttons */}
             <div className="flex items-center justify-end space-x-4 pt-8 border-t border-plum-800/30">
               <button
                 type="button"
@@ -621,16 +717,16 @@ export default function NewProductPage() {
               </button>
               <button
                 type="submit"
-                disabled={isLoading}
+                disabled={isSaving}
                 className="bg-plum-700 hover:bg-plum-600 disabled:bg-plum-800 disabled:cursor-not-allowed text-white px-8 py-3 rounded-lg font-medium transition-colors"
               >
-                {isLoading ? (
+                {isSaving ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Creating...</span>
+                    <span>Updating...</span>
                   </div>
                 ) : (
-                  'Create Sacred Product'
+                  'Update Sacred Product'
                 )}
               </button>
             </div>

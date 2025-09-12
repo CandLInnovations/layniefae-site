@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Product, Element, ProductSearchResult } from '@/types/product';
 import { useCart } from '@/hooks/useCart';
 
@@ -8,6 +9,7 @@ export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCart();
+  const router = useRouter();
 
   useEffect(() => {
     fetchProducts();
@@ -40,6 +42,7 @@ export default function ShopPage() {
     };
     return emojis[element];
   };
+
 
   const handleAddToCart = (product: Product) => {
     addToCart(
@@ -85,7 +88,8 @@ export default function ShopPage() {
             {products.map((product) => (
               <div 
                 key={product.id}
-                className="group bg-midnight-800/50 backdrop-blur-sm rounded-3xl overflow-hidden border border-plum-800/30 hover:border-plum-600/50 transition-all duration-500 hover:transform hover:scale-105"
+                className="group bg-midnight-800/50 backdrop-blur-sm rounded-3xl overflow-hidden border border-plum-800/30 hover:border-plum-600/50 transition-all duration-500 hover:transform hover:scale-105 cursor-pointer"
+                onClick={() => router.push(`/products/${product.id}`)}
               >
                 {/* Product Image */}
                 <div className="relative h-64 bg-midnight-700 overflow-hidden">
@@ -102,11 +106,11 @@ export default function ShopPage() {
                     </div>
                   )}
                   
-                  {/* Ritual Properties Overlay */}
-                  {product.ritualProperties && (
+                  {/* Element badges - simplified */}
+                  {(product as any).ritual_properties?.elements && (product as any).ritual_properties.elements.length > 0 && (
                     <div className="absolute top-4 left-4 z-20">
                       <div className="flex space-x-1">
-                        {product.ritualProperties.elements.slice(0, 3).map((element, idx) => (
+                        {(product as any).ritual_properties.elements.slice(0, 2).map((element: Element, idx: number) => (
                           <span 
                             key={idx}
                             className="bg-midnight-900/80 backdrop-blur-sm text-xs px-2 py-1 rounded-full text-mist-100 border border-plum-600/30"
@@ -115,12 +119,17 @@ export default function ShopPage() {
                             {getElementEmoji(element)}
                           </span>
                         ))}
+                        {(product as any).ritual_properties.elements.length > 2 && (
+                          <span className="bg-midnight-900/80 backdrop-blur-sm text-xs px-2 py-1 rounded-full text-mist-100 border border-plum-600/30">
+                            +{(product as any).ritual_properties.elements.length - 2}
+                          </span>
+                        )}
                       </div>
                     </div>
                   )}
 
                   {/* Customizable Badge */}
-                  {product.isCustomizable && (
+                  {(product as any).is_customizable && (
                     <div className="absolute top-4 right-4 z-20">
                       <span className="bg-plum-700/90 backdrop-blur-sm text-xs px-3 py-1 rounded-full text-white">
                         ✨ Customizable
@@ -143,18 +152,19 @@ export default function ShopPage() {
                     {product.description}
                   </p>
 
-                  {/* Intentions */}
-                  {product.ritualProperties?.intentions && (
+                  {/* Brief mystical properties preview */}
+                  {(product as any).ritual_properties && (
                     <div className="mb-4">
-                      <div className="flex flex-wrap gap-1">
-                        {product.ritualProperties.intentions.slice(0, 3).map((intention, idx) => (
-                          <span 
-                            key={idx}
-                            className="text-xs bg-forest-800/50 text-rose-300 px-2 py-1 rounded-full"
-                          >
-                            {intention}
-                          </span>
-                        ))}
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs text-plum-400 flex items-center space-x-2">
+                          {(product as any).ritual_properties.intentions?.length > 0 && (
+                            <span>💫 {(product as any).ritual_properties.intentions.length} intentions</span>
+                          )}
+                          {(product as any).ritual_properties.moonPhase && (
+                            <span>🌙 Moon work</span>
+                          )}
+                        </div>
+                        <span className="text-xs text-mist-500">View details →</span>
                       </div>
                     </div>
                   )}
@@ -164,9 +174,9 @@ export default function ShopPage() {
                     <div className="text-2xl font-bold text-plum-300">
                       {formatPrice(product.price)}
                     </div>
-                    {product.stockQuantity && (
+                    {(product as any).stock_quantity && (
                       <div className="text-sm text-mist-400">
-                        {product.stockQuantity} in stock
+                        {(product as any).stock_quantity} in stock
                       </div>
                     )}
                   </div>
@@ -174,13 +184,22 @@ export default function ShopPage() {
                   {/* Actions */}
                   <div className="flex space-x-3">
                     <button 
-                      onClick={() => handleAddToCart(product)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddToCart(product);
+                      }}
                       className="flex-1 bg-plum-700 hover:bg-plum-600 text-white px-4 py-3 rounded-lg font-medium transition-colors duration-300"
                     >
                       Add to Cart
                     </button>
-                    <button className="px-4 py-3 border border-plum-600 text-plum-300 hover:bg-plum-600 hover:text-white rounded-lg transition-colors duration-300">
-                      ❤️
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/products/${product.id}`);
+                      }}
+                      className="px-4 py-3 border border-plum-600 text-plum-300 hover:bg-plum-600 hover:text-white rounded-lg transition-colors duration-300"
+                    >
+                      View Details
                     </button>
                   </div>
                 </div>
