@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { supabaseAdmin } from '@/lib/supabase';
 
 // Helper function to verify customer session (same as in profile route)
 async function verifyCustomerSession(request: NextRequest) {
@@ -71,8 +72,9 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(url.searchParams.get('limit') || '10');
     const offset = (page - 1) * limit;
 
-    // Fetch orders for this customer by customer_id AND email (for backward compatibility)
-    const { data: orders, error, count } = await supabase
+    // Fetch orders for this customer by customer_id ONLY (proper architecture)
+    // Use supabaseAdmin (service role) to bypass RLS while still validating customer session
+    const { data: orders, error, count } = await supabaseAdmin
       .from('orders')
       .select(`
         *,
@@ -85,7 +87,7 @@ export async function GET(request: NextRequest) {
           )
         )
       `, { count: 'exact' })
-      .or(`customer_id.eq.${customer.id},customer_email.eq.${customer.email}`)
+      .eq('customer_id', customer.id)
       .order('created_at', { ascending: false })
       .range(offset, offset + limit - 1);
 
@@ -98,10 +100,10 @@ export async function GET(request: NextRequest) {
     }
 
     // Calculate order statistics
-    const { data: allOrders } = await supabase
+    const { data: allOrders } = await supabaseAdmin
       .from('orders')
       .select('status, total_amount')
-      .or(`customer_id.eq.${customer.id},customer_email.eq.${customer.email}`)
+      .eq('customer_id', customer.id)
       .not('status', 'eq', 'CANCELLED');
 
     const stats = {

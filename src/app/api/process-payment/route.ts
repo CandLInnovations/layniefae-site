@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { squareClient } from '@/lib/square-client';
 import { supabaseAdmin } from '@/lib/supabase';
 import { randomUUID } from 'crypto';
+import { EmailService } from '@/lib/email-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -105,8 +106,15 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (orderError) {
-        console.error('Error saving order:', orderError);
+        console.error('Error saving order:', {
+          message: orderError.message,
+          details: orderError.details,
+          hint: orderError.hint,
+          code: orderError.code
+        });
         // Don't fail the payment, but log the error
+      } else {
+        console.log('Order saved successfully:', savedOrder?.id);
       }
 
       // Save order items
@@ -130,6 +138,31 @@ export async function POST(request: NextRequest) {
 
         if (itemsError) {
           console.error('Error saving order items:', itemsError);
+        }
+      }
+
+      // Send order confirmation email
+      if (savedOrder) {
+        try {
+          await EmailService.sendOrderConfirmation(customerInfo.email, {
+            customerName: customerInfo.name || `${customerInfo.firstName || ''} ${customerInfo.lastName || ''}`.trim() || customerInfo.email,
+            orderId: savedOrder.id,
+            orderItems: cartItems.map((item: any) => ({
+              name: item.name,
+              quantity: item.quantity,
+              price: item.price
+            })),
+            totalAmount: amountInCents,
+            orderDate: new Date().toLocaleDateString('en-US', { 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })
+          });
+          console.log('Order confirmation email sent successfully');
+        } catch (emailError) {
+          console.error('Failed to send order confirmation email:', emailError);
+          // Don't fail the order if email fails
         }
       }
       

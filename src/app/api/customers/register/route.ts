@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
 import { CustomerAuth } from '@/lib/customer-auth';
 import { CustomerRegistration, CustomerAuthResponse } from '@/types/customer';
+import { EmailService } from '@/lib/email-service';
 
 export async function POST(request: NextRequest) {
   try {
@@ -114,8 +115,22 @@ export async function POST(request: NextRequest) {
       } as CustomerAuthResponse, { status: 500 });
     }
 
-    // TODO: Send verification email here
-    console.log(`Verification token for ${sanitizedEmail}: ${verificationToken}`);
+    // Send welcome and verification emails
+    try {
+      // Send verification email (important for account security)
+      await EmailService.sendEmailVerification(sanitizedEmail, verificationToken);
+      
+      // Send welcome email (for user experience)
+      await EmailService.sendWelcomeEmail(sanitizedEmail, {
+        customerName: sanitizedFirstName || sanitizedEmail.split('@')[0],
+        email: sanitizedEmail
+      });
+      
+      console.log(`Welcome and verification emails sent successfully to ${sanitizedEmail}`);
+    } catch (emailError) {
+      console.error('Failed to send welcome/verification emails:', emailError);
+      // Don't fail registration if email fails - user can still use the account
+    }
 
     return NextResponse.json({
       success: true,

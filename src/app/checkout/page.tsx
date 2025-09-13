@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useCart } from '@/hooks/useCart';
+import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import Script from 'next/script';
 
 interface PaymentForm {
@@ -23,6 +24,7 @@ declare global {
 
 export default function CheckoutPage() {
   const { cart, clearCart } = useCart();
+  const { customer } = useCustomerAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [paymentForm, setPaymentForm] = useState<PaymentForm>({});
@@ -47,6 +49,24 @@ export default function CheckoutPage() {
     console.log('Checkout page mounted, cart items:', cart.items.length);
     // Don't redirect, just show empty state message instead
   }, [cart.items.length]);
+
+  // Auto-fill customer information when logged in
+  useEffect(() => {
+    if (customer) {
+      console.log('Customer logged in, auto-filling checkout form:', {
+        email: customer.email,
+        firstName: customer.first_name,
+        lastName: customer.last_name
+      });
+      
+      setCustomerInfo(prev => ({
+        ...prev,
+        firstName: customer.first_name || '',
+        lastName: customer.last_name || '',
+        email: customer.email || '',
+      }));
+    }
+  }, [customer]);
 
   // Initialize Square payments when component mounts and Square is loaded
   useEffect(() => {
@@ -166,7 +186,8 @@ export default function CheckoutPage() {
       }
     } catch (error) {
       console.error('Payment failed:', error);
-      alert(`Payment failed: ${error}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      alert(`Payment failed: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
