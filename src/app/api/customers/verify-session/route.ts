@@ -49,8 +49,12 @@ export async function GET(request: NextRequest) {
       }, { status: 401 });
     }
 
+    const customerProfile = Array.isArray(sessionData.customer_profiles) 
+      ? sessionData.customer_profiles[0] 
+      : sessionData.customer_profiles;
+
     // Check if customer is still active
-    if (!sessionData.customer_profiles.is_active) {
+    if (!customerProfile || !customerProfile.is_active) {
       return NextResponse.json({
         success: false,
         error: 'Account has been deactivated'
@@ -59,7 +63,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      customer: sessionData.customer_profiles,
+      customer: customerProfile,
       expires_at: sessionData.expires_at
     }, { status: 200 });
 

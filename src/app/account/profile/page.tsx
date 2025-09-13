@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useCustomerAuth } from '@/hooks/useCustomerAuth';
 import { useCustomerOrders } from '@/hooks/useCustomerOrders';
@@ -56,7 +56,7 @@ const chakras = [
   { name: 'Crown', emoji: '⚪', description: 'Spirituality, enlightenment, unity' }
 ];
 
-export default function ProfilePage() {
+function ProfilePageContent() {
   const { customer, isAuthenticated, isLoading, logout, updateProfile } = useCustomerAuth();
   const { orders, stats, isLoading: ordersLoading, error: ordersError, pagination, goToPage } = useCustomerOrders();
   const [activeTab, setActiveTab] = useState('profile');
@@ -165,6 +165,12 @@ export default function ProfilePage() {
   };
 
   const toggleArrayValue = (array: string[], value: string) => {
+    return array.includes(value) 
+      ? array.filter(item => item !== value)
+      : [...array, value];
+  };
+
+  const toggleElementValue = (array: Element[], value: Element) => {
     return array.includes(value) 
       ? array.filter(item => item !== value)
       : [...array, value];
@@ -402,7 +408,7 @@ export default function ProfilePage() {
                       key={element.value}
                       onClick={() => setRitualPrefs(prev => ({
                         ...prev,
-                        preferred_elements: toggleArrayValue(prev.preferred_elements || [], element.value)
+                        preferred_elements: toggleElementValue(prev.preferred_elements || [], element.value)
                       }))}
                       className={`p-4 rounded-xl text-left transition-all duration-300 ${
                         ritualPrefs.preferred_elements?.includes(element.value)
@@ -705,5 +711,20 @@ export default function ProfilePage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-b from-midnight-900 to-forest-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-sage-400 mx-auto"></div>
+          <p className="text-mist-300 mt-4">Loading profile...</p>
+        </div>
+      </div>
+    }>
+      <ProfilePageContent />
+    </Suspense>
   );
 }

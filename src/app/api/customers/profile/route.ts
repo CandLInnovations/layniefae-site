@@ -42,11 +42,15 @@ async function verifyCustomerSession(request: NextRequest) {
     return null;
   }
 
-  if (!sessionData.customer_profiles.is_active) {
+  const customerProfile = Array.isArray(sessionData.customer_profiles) 
+    ? sessionData.customer_profiles[0] 
+    : sessionData.customer_profiles;
+
+  if (!customerProfile || !customerProfile.is_active) {
     return null;
   }
 
-  return sessionData.customer_profiles;
+  return customerProfile;
 }
 
 export async function GET(request: NextRequest) {

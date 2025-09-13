@@ -119,7 +119,7 @@ export async function POST(request: NextRequest) {
 
       // Save order items
       if (savedOrder && cartItems.length > 0) {
-        const orderItems = cartItems.map(item => ({
+        const orderItems = cartItems.map((item: any) => ({
           id: randomUUID(),
           order_id: orderId,
           product_id: item.productId,
