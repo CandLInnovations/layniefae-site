@@ -10,7 +10,7 @@ export default function ServicesPage() {
     <div className="min-h-screen bg-gradient-to-b from-midnight-900 to-forest-900">
       
       {/* Hero Section */}
-      <section className="pt-32 pb-20 px-4">
+      <section className="pt-32 pb-20 px-3 sm:px-4 lg:px-6">
         <div className="max-w-6xl mx-auto text-center">
           <h1 className="font-serif text-5xl md:text-6xl text-mist-100 mb-6">
             Sacred Services & Botanical Blessings
@@ -24,12 +24,12 @@ export default function ServicesPage() {
       </section>
 
       {/* Services Grid */}
-      <section className="py-16 px-4 light-bg bg-gradient-to-b from-mist-100 to-rose-100">
+      <section className="py-16 px-3 sm:px-4 lg:px-6 light-bg bg-gradient-to-b from-mist-100 to-rose-100">
         <div className="max-w-6xl mx-auto">
           
           {/* Events Section */}
           <div className="mb-20">
-            <div className="bg-gradient-to-r from-plum-200/40 to-midnight-200/40 rounded-3xl p-12 backdrop-blur-sm">
+            <div className="bg-gradient-to-r from-plum-200/40 to-midnight-200/40 rounded-3xl p-4 sm:p-8 lg:p-12 backdrop-blur-sm">
               <div className="text-center mb-12">
                 <div className="text-6xl mb-6">⭐◊⚜</div>
                 <h2 className="font-serif text-4xl text-plum-800 mb-6">
@@ -95,7 +95,7 @@ export default function ServicesPage() {
 
           {/* Holiday Bouquets Section */}
           <div className="mb-20">
-            <div className="bg-gradient-to-r from-forest-200/40 to-rose-200/40 rounded-3xl p-12 backdrop-blur-sm">
+            <div className="bg-gradient-to-r from-forest-200/40 to-rose-200/40 rounded-3xl p-4 sm:p-8 lg:p-12 backdrop-blur-sm">
               <div className="text-center mb-12">
                 <div className="text-6xl mb-6">☀🌙🍃</div>
                 <h2 className="font-serif text-4xl text-plum-800 mb-6">
@@ -162,7 +162,7 @@ export default function ServicesPage() {
 
           {/* Crowns & Wreaths Section */}
           <div className="mb-16">
-            <div className="bg-gradient-to-r from-rose-200/40 to-plum-200/40 rounded-3xl p-12 backdrop-blur-sm">
+            <div className="bg-gradient-to-r from-rose-200/40 to-plum-200/40 rounded-3xl p-4 sm:p-8 lg:p-12 backdrop-blur-sm">
               <div className="text-center mb-12">
                 <div className="text-6xl mb-6">♀☘⚜</div>
                 <h2 className="font-serif text-4xl text-plum-800 mb-6">

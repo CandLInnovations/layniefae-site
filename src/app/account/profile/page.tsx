@@ -427,12 +427,12 @@ function ProfilePageContent() {
               {/* Experience Level */}
               <div>
                 <h3 className="text-lg font-medium text-mist-100 mb-4">🔮 Experience Level</h3>
-                <div className="flex gap-4">
+                <div className="flex flex-wrap gap-2 sm:gap-4">
                   {EXPERIENCE_LEVELS.map((level) => (
                     <button
                       key={level}
                       onClick={() => setRitualPrefs(prev => ({ ...prev, ritual_experience_level: level }))}
-                      className={`px-6 py-3 rounded-lg font-medium transition-all duration-300 capitalize ${
+                      className={`px-3 sm:px-6 py-2 sm:py-3 rounded-lg font-medium transition-all duration-300 capitalize ${
                         ritualPrefs.ritual_experience_level === level
                           ? 'bg-plum-600 text-white'
                           : 'bg-midnight-700/50 text-mist-300 hover:bg-plum-700/30'

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Product, Element, ProductSearchResult } from '@/types/product';
 import { useCart } from '@/hooks/useCart';
 
@@ -20,9 +21,10 @@ export default function ShopPage() {
     try {
       const response = await fetch('/api/products');
       const result: ProductSearchResult = await response.json();
-      setProducts(result.products);
+      setProducts(result.products || []);
     } catch (error) {
       console.error('Error fetching products:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -70,6 +72,21 @@ export default function ShopPage() {
         </div>
       </section>
 
+      {/* Gift Cards Quick Access */}
+      <section className="pb-8 px-4">
+        <div className="max-w-7xl mx-auto text-center">
+          <Link
+            href="/gift-cards"
+            className="inline-flex items-center justify-center px-6 py-3 bg-gradient-to-r from-plum-600 to-purple-600 hover:from-plum-500 hover:to-purple-500 text-white rounded-full font-medium transition-all duration-300 hover:scale-105 shadow-lg hover:shadow-plum-500/25"
+          >
+            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+            </svg>
+            Gift Cards Available
+          </Link>
+        </div>
+      </section>
+
       <div className="max-w-7xl mx-auto px-4 pb-20">
         {/* Products Grid */}
         {loading ? (
@@ -84,7 +101,7 @@ export default function ShopPage() {
             <p className="text-mist-200">Try again later to discover magical offerings.</p>
           </div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
             {products.map((product) => (
               <div 
                 key={product.id}
@@ -205,6 +222,72 @@ export default function ShopPage() {
                 </div>
               </div>
             ))}
+            
+            {/* Gift Card "Product" */}
+            <div 
+              className="group bg-gradient-to-br from-plum-900/30 to-sage-900/20 backdrop-blur-sm rounded-3xl overflow-hidden border-2 border-plum-600/40 hover:border-sage-500/60 transition-all duration-500 hover:transform hover:scale-105 cursor-pointer"
+              onClick={() => router.push('/gift-cards')}
+            >
+              {/* Gift Card Image */}
+              <div className="relative h-64 bg-gradient-to-br from-purple-800 via-plum-700 to-emerald-600 overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-t from-midnight-900/40 to-transparent z-10"></div>
+                {/* Elemental Harmony Design Elements */}
+                <div className="absolute inset-0 flex items-center justify-center z-10">
+                  <div className="text-center">
+                    <div className="text-6xl mb-4 animate-pulse">🌀</div>
+                    <h3 className="font-serif text-2xl text-white/90 mb-2">Elemental Harmony</h3>
+                    <p className="text-white/70 text-sm">Balance of earth, air, fire, and water</p>
+                  </div>
+                </div>
+                <div className="absolute top-4 right-4 bg-sage-600/90 text-white px-3 py-1 rounded-full text-xs font-medium z-20">
+                  Special Offer
+                </div>
+              </div>
+              
+              {/* Gift Card Info */}
+              <div className="p-6">
+                <div className="mb-3">
+                  <span className="text-sage-400 text-sm font-medium">Perfect Gift</span>
+                </div>
+                
+                <h3 className="font-serif text-xl text-mist-100 mb-3 group-hover:text-sage-200 transition-colors">
+                  Sacred Gift Cards
+                </h3>
+                
+                <p className="text-mist-300 text-sm mb-4 leading-relaxed">
+                  Share the magic of mystical ceremonies and sacred botanicals. Available in multiple amounts for any occasion.
+                </p>
+
+                {/* Gift card features */}
+                <div className="mb-4">
+                  <div className="text-xs text-sage-400 flex items-center space-x-2">
+                    <span>✨ Never expires</span>
+                    <span>💌 Instant delivery</span>
+                  </div>
+                </div>
+
+                {/* Price and Actions */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="text-right">
+                    <div className="text-xl font-semibold text-sage-100">Multiple Values</div>
+                    <div className="text-sm text-sage-300">Starting at $25</div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="flex space-x-3">
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      router.push('/gift-cards');
+                    }}
+                    className="flex-1 bg-gradient-to-r from-plum-600 to-purple-600 hover:from-plum-500 hover:to-purple-500 text-white px-4 py-3 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:shadow-plum-500/25"
+                  >
+                    Purchase Gift Card
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
       </div>

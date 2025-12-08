@@ -304,7 +304,7 @@ export default function CheckoutPage() {
               
               {/* Customer Information */}
               <div className="space-y-4 mb-8">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-mist-200 mb-1">
                       First Name
@@ -313,7 +313,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={customerInfo.firstName}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, firstName: e.target.value }))}
-                      className="w-full px-4 py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
+                      className="w-full px-4 py-4 sm:py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
                       placeholder="First name"
                     />
                     {errors.firstName && <p className="text-red-400 text-xs mt-1">{errors.firstName}</p>}
@@ -326,7 +326,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={customerInfo.lastName}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, lastName: e.target.value }))}
-                      className="w-full px-4 py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
+                      className="w-full px-4 py-4 sm:py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
                       placeholder="Last name"
                     />
                     {errors.lastName && <p className="text-red-400 text-xs mt-1">{errors.lastName}</p>}
@@ -341,7 +341,7 @@ export default function CheckoutPage() {
                     type="email"
                     value={customerInfo.email}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, email: e.target.value }))}
-                    className="w-full px-4 py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
+                    className="w-full px-4 py-4 sm:py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
                     placeholder="your@email.com"
                   />
                   {errors.email && <p className="text-red-400 text-xs mt-1">{errors.email}</p>}
@@ -355,7 +355,7 @@ export default function CheckoutPage() {
                     type="tel"
                     value={customerInfo.phone}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, phone: e.target.value }))}
-                    className="w-full px-4 py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
+                    className="w-full px-4 py-4 sm:py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
                     placeholder="(555) 123-4567"
                   />
                   {errors.phone && <p className="text-red-400 text-xs mt-1">{errors.phone}</p>}
@@ -369,13 +369,13 @@ export default function CheckoutPage() {
                     type="text"
                     value={customerInfo.address}
                     onChange={(e) => setCustomerInfo(prev => ({ ...prev, address: e.target.value }))}
-                    className="w-full px-4 py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
+                    className="w-full px-4 py-4 sm:py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
                     placeholder="123 Main Street"
                   />
                   {errors.address && <p className="text-red-400 text-xs mt-1">{errors.address}</p>}
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-mist-200 mb-1">
                       City
@@ -384,7 +384,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={customerInfo.city}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, city: e.target.value }))}
-                      className="w-full px-4 py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
+                      className="w-full px-4 py-4 sm:py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
                       placeholder="City"
                     />
                     {errors.city && <p className="text-red-400 text-xs mt-1">{errors.city}</p>}
@@ -397,7 +397,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={customerInfo.state}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, state: e.target.value }))}
-                      className="w-full px-4 py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
+                      className="w-full px-4 py-4 sm:py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
                       placeholder="ST"
                     />
                     {errors.state && <p className="text-red-400 text-xs mt-1">{errors.state}</p>}
@@ -410,7 +410,7 @@ export default function CheckoutPage() {
                       type="text"
                       value={customerInfo.zipCode}
                       onChange={(e) => setCustomerInfo(prev => ({ ...prev, zipCode: e.target.value }))}
-                      className="w-full px-4 py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
+                      className="w-full px-4 py-4 sm:py-3 bg-midnight-700 border border-plum-800/50 rounded-lg text-midnight-800 bg-mist-100 focus:border-plum-600 focus:ring-1 focus:ring-plum-600 transition-colors"
                       placeholder="12345"
                     />
                     {errors.zipCode && <p className="text-red-400 text-xs mt-1">{errors.zipCode}</p>}

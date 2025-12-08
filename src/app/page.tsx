@@ -51,7 +51,7 @@ export default function HomePage() {
       <section className="py-16 px-4 bg-midnight-800/80">
         <div className="max-w-6xl mx-auto">
           <h2 className="font-serif text-4xl text-center text-mist-100 mb-16">
-            Sacred Services
+            Services
           </h2>
           <div className="grid md:grid-cols-3 gap-8">
             {/* Wedding Ceremonies */}
@@ -70,7 +70,7 @@ export default function HomePage() {
             <div className="bg-midnight-700/60 backdrop-blur rounded-2xl p-8 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-2">
               <div className="text-4xl mb-4 text-center">🌸</div>
               <h3 className="font-serif text-2xl text-rose-100 mb-4 text-center">
-                Sacred Floral Design
+                Floral Design
               </h3>
               <p className="text-mist-200 text-center leading-relaxed">
                 Ritual bouquets, altar arrangements, and ceremonial florals infused 

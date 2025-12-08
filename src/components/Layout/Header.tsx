@@ -13,13 +13,11 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { cart, setIsCartOpen } = useCart();
-  const { customer, isAuthenticated, logout } = useCustomerAuth();
+  const { customer, isAuthenticated } = useCustomerAuth();
 
   const navigation = [
-    { name: 'Home', href: '/' },
     { name: 'Services', href: '/services' },
     { name: 'Shop', href: '/shop' },
-    { name: 'Gift Cards', href: '/gift-cards' },
     { name: 'Gallery', href: '/gallery' },
     { name: 'About', href: '/about' },
     { name: 'Contact', href: '/contact' },
@@ -30,18 +28,18 @@ const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href="/" className="flex items-center group relative">
-            <div className="absolute top-0 left-0 w-36 h-36 transition-transform duration-300 group-hover:scale-105 translate-y-2">
+          <Link href="/" className="flex items-center group relative focus:outline-none focus:ring-0 focus:border-0 outline-none">
+            <div className="absolute top-0 left-0 w-24 h-24 sm:w-32 sm:h-32 lg:w-36 lg:h-36 transition-transform duration-300 group-hover:scale-105 translate-y-1 sm:translate-y-2">
               <Image
                 src="/Laynie_Fae_logo_badge_wfairy2.png"
                 alt="Laynie Fae Logo"
                 width={150}
                 height={153}
-                className="object-contain"
+                className="object-contain focus:outline-none outline-none"
                 priority
               />
             </div>
-            <div className="w-36 h-20"></div> {/* Spacer to prevent navigation overlap */}
+            <div className="w-24 h-16 sm:w-32 sm:h-20 lg:w-36 lg:h-20"></div> {/* Spacer to prevent navigation overlap */}
           </Link>
 
           {/* Desktop Navigation */}
@@ -99,13 +97,6 @@ const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
                     {customer?.first_name || 'Profile'}
                   </span>
                 </Link>
-                <button
-                  onClick={logout}
-                  className="text-mist-400 hover:text-mist-200 text-sm transition-colors duration-300"
-                  title="Sign Out"
-                >
-                  Sign Out
-                </button>
               </div>
             ) : (
               <div className="flex items-center space-x-3">
@@ -230,15 +221,6 @@ const Header: React.FC<HeaderProps> = ({ onConsultationClick }) => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
                   </Link>
-                  <button
-                    onClick={() => {
-                      logout();
-                      setIsMenuOpen(false);
-                    }}
-                    className="text-mist-400 hover:text-mist-200 transition-colors duration-300 py-2 px-4 text-right w-full"
-                  >
-                    Sign Out
-                  </button>
                 </>
               ) : (
                 <>
