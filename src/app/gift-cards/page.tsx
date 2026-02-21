@@ -115,7 +115,7 @@ export default function GiftCardsPage() {
           </h1>
           <div className="w-24 h-1 bg-plum-600 mx-auto mb-6"></div>
           <p className="text-xl text-mist-200 leading-relaxed max-w-2xl mx-auto">
-            Share the magic of sacred intentions with those you love. 
+            Share the magic of charmed intentions with those you love. 
             Our gift cards carry blessings for any mystical journey.
           </p>
         </div>
@@ -281,7 +281,7 @@ export default function GiftCardsPage() {
                 onClick={handleAddToCart}
                 className="w-full bg-plum-700 hover:bg-plum-600 text-white font-medium py-4 rounded-lg transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-plum-700/25 mt-8"
               >
-                Add Sacred Gift Card to Cart • ${giftCardData.amount}.00
+                Send Some Magic • ${giftCardData.amount}.00
               </button>
             </div>
           </div>
@@ -297,7 +297,7 @@ export default function GiftCardsPage() {
             </div>
             <div>
               <p className="mb-2">🔒 <strong>Secure Codes:</strong> Each gift card has a unique mystical code</p>
-              <p className="mb-2">✉️ <strong>Beautiful Design:</strong> Delivered with your chosen sacred design</p>
+              <p className="mb-2">✉️ <strong>Beautiful Design:</strong> Delivered with your selected resonant design</p>
             </div>
           </div>
         </div>
